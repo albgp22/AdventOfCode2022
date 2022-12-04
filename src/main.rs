@@ -6,9 +6,7 @@ use std::io::{self, BufRead};
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 
-mod day1;
-mod day2;
-mod day3;
+mod day1;mod day2;mod day3;mod day4;
 
 fn main() {
     println!("Day:");
@@ -39,6 +37,7 @@ fn main() {
         1 => day1::solve(reader),
         2 => day2::solve(reader),
         3 => day3::solve(reader),
+        4 => day4::solve(reader),
         _ => print!(""),
     }
 }
