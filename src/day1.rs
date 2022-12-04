@@ -12,14 +12,14 @@ pub fn solve(mut reader: BufReader<File>) {
     };
     let maximum: i32 = file_content
         .split("\n\n")
-        .map(|elf| elf.split("\n").map(|n| { n.parse::<i32>().unwrap_or(0) }).sum::<i32>())
+        .map(|elf| elf.split('\n').map(|n| { n.parse::<i32>().unwrap_or(0) }).sum::<i32>())
         .max().unwrap();
     println!("The maximum is: {}", maximum);
 
     // 2nd part
     let mut cals: Vec<i32> = file_content
         .split("\n\n")
-        .map(|elf| elf.split("\n").map(|n| { n.parse::<i32>().unwrap_or(0) }).sum::<i32>())
+        .map(|elf| elf.split('\n').map(|n| { n.parse::<i32>().unwrap_or(0) }).sum::<i32>())
         .collect::<Vec<i32>>();
     cals.sort();
 

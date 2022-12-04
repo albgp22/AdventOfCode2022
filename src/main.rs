@@ -1,9 +1,9 @@
-use std::error::Error;
+
 use std::fs::File;
 use std::io::BufReader;
-use std::io::Lines;
-use std::io::{self, BufRead};
-use std::io::{stdin, stdout, Write};
+
+use std::io::{BufRead};
+use std::io::{stdin};
 use std::path::Path;
 
 mod day1;mod day2;mod day3;mod day4;
@@ -21,7 +21,7 @@ fn main() {
         if let Some('\r') = day.chars().next_back() {
             day.pop();
         }
-        day.parse().expect(&format!("{} is not an integer!", day))
+        day.parse().unwrap_or_else(|_| panic!("{} is not an integer!", day))
     };
 
     let filename = format!("inputs/{}.txt", day);
@@ -29,9 +29,9 @@ fn main() {
     let display = file_path.display();
     //println!("{}", display);
 
-    let file: File = File::open(&file_path).expect(&format!("Could not open {}", display));
+    let file: File = File::open(&file_path).unwrap_or_else(|_| panic!("Could not open {}", display));
 
-    let mut reader: BufReader<File> = BufReader::new(file);
+    let reader: BufReader<File> = BufReader::new(file);
 
     match day {
         1 => day1::solve(reader),

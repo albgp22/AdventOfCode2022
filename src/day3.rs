@@ -1,7 +1,7 @@
-use std::collections::HashSet;
+
 use std::fs::File;
-use std::io::Lines;
-use std::io::{self, prelude::*, BufReader};
+
+use std::io::{prelude::*, BufReader};
 
 fn find_common_char(backpack: &str) -> char {
     let middle_point = backpack.chars().count() / 2;
@@ -9,7 +9,7 @@ fn find_common_char(backpack: &str) -> char {
     let c1: Vec<char> = containers[..middle_point].to_vec();
     let c2: Vec<char> = containers[middle_point..].to_vec();
 
-    *c1.iter().filter(|x| c2.contains(x)).next().unwrap()
+    *c1.iter().find(|x| c2.contains(x)).unwrap()
 }
 
 fn to_prio(c: char) -> u32 {
@@ -29,8 +29,8 @@ pub fn solve(reader: BufReader<File>) {
     let lines: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
     let res: u32 = lines
         .iter()
-        .map(|l| find_common_char(&l))
-        .map(|c| to_prio(c) )
+        .map(|l| find_common_char(l))
+        .map(to_prio )
         .sum();
     println!("Sum of priorities: {}", res);
 
