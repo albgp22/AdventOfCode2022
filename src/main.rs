@@ -8,6 +8,7 @@ use std::path::Path;
 
 mod day1;
 mod day2;
+mod day3;
 
 fn main() {
     println!("Day:");
@@ -37,6 +38,7 @@ fn main() {
     match day {
         1 => day1::solve(reader),
         2 => day2::solve(reader),
+        3 => day3::solve(reader),
         _ => print!(""),
     }
 }
