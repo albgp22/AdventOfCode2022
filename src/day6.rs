@@ -9,7 +9,7 @@ pub fn solve(reader: BufReader<File>) {
     let mut res: usize = 0;
     for i in 0..(chars.len()-4){
         let mut last_chars = HashSet::new();
-        for j in i..(i+4){
+        for _ in i..(i+4){
             last_chars.insert(chars[j]);
         }
         if last_chars.len()==4{
@@ -22,7 +22,7 @@ pub fn solve(reader: BufReader<File>) {
     let mut res: usize = 0;
     for i in 0..(chars.len()-14){
         let mut last_chars = HashSet::new();
-        for j in i..(i+14){
+        for _ in i..(i+14){
             last_chars.insert(chars[j]);
         }
         if last_chars.len()==14{

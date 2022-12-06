@@ -18,7 +18,7 @@ pub fn solve(reader: BufReader<File>) {
 
     for line in &lines {
         match 1 {
-            _ if re_stack.is_match(&line) => {
+            _ if re_stack.is_match(line) => {
                 let mut chars_it = line.chars().skip(1).step_by(4);
                 for i in 0..n_stacks {
                     let c = chars_it.next().unwrap();
@@ -27,9 +27,9 @@ pub fn solve(reader: BufReader<File>) {
                     }
                 }
             }
-            _ if re_numbers.is_match(&line) => {}
-            _ if re_action.is_match(&line) => {
-                let matches = re_action.captures(&line).unwrap();
+            _ if re_numbers.is_match(line) => {}
+            _ if re_action.is_match(line) => {
+                let matches = re_action.captures(line).unwrap();
                 let quantity = matches.get(1).unwrap().as_str().parse::<usize>().unwrap();
                 let origin = matches.get(2).unwrap().as_str().parse::<usize>().unwrap();
                 let destination = matches.get(3).unwrap().as_str().parse::<usize>().unwrap();
@@ -58,7 +58,7 @@ pub fn solve(reader: BufReader<File>) {
 
     for line in &lines {
         match 1 {
-            _ if re_stack.is_match(&line) => {
+            _ if re_stack.is_match(line) => {
                 let mut chars_it = line.chars().skip(1).step_by(4);
                 for i in 0..n_stacks {
                     let c = chars_it.next().unwrap();
@@ -67,9 +67,9 @@ pub fn solve(reader: BufReader<File>) {
                     }
                 }
             }
-            _ if re_numbers.is_match(&line) => {}
-            _ if re_action.is_match(&line) => {
-                let matches = re_action.captures(&line).unwrap();
+            _ if re_numbers.is_match(line) => {}
+            _ if re_action.is_match(line) => {
+                let matches = re_action.captures(line).unwrap();
                 let quantity = matches.get(1).unwrap().as_str().parse::<usize>().unwrap();
                 let origin = matches.get(2).unwrap().as_str().parse::<usize>().unwrap();
                 let destination = matches.get(3).unwrap().as_str().parse::<usize>().unwrap();
