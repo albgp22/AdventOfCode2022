@@ -7,6 +7,7 @@ use std::io::{stdin};
 use std::path::Path;
 
 mod day1;mod day2;mod day3;mod day4;mod day5;
+mod day6;
 
 fn main() {
     println!("Day:");
@@ -39,6 +40,7 @@ fn main() {
         3 => day3::solve(reader),
         4 => day4::solve(reader),
         5 => day5::solve(reader),
+        6 => day6::solve(reader),
         _ => print!(""),
     }
 }
