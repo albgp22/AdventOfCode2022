@@ -35,7 +35,7 @@ pub fn solve(reader: BufReader<File>) {
     println!("Sum of priorities: {}", res);
 
     let mut res = 0;
-    let mut found: bool = false;
+    let mut found: bool;
     
     for (i, l) in lines.iter().enumerate(){
         match i%3 {
