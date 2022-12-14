@@ -6,9 +6,9 @@ use std::io::{BufRead};
 use std::io::{stdin};
 use std::path::Path;
 
-mod day1 ;mod day2;mod day3;mod day4;mod day5;
-mod day6 ;mod day7;mod day8;mod day9;mod day10;
-mod day11;mod day12;
+mod day1 ;mod day2 ;mod day3 ;mod day4;mod day5;
+mod day6 ;mod day7 ;mod day8 ;mod day9;mod day10;
+mod day11;mod day12;mod day13;
 
 fn main() {
     println!("Day:");
@@ -48,6 +48,7 @@ fn main() {
         10 => day10::solve(reader),
         11 => day11::solve(reader),
         12 => day12::solve(reader),
+        13 => day13::solve(reader),
         _ => panic!("Not implemented"),
     }
 }
