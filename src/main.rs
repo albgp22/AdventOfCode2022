@@ -8,7 +8,7 @@ use std::path::Path;
 
 mod day1 ;mod day2 ;mod day3 ;mod day4;mod day5;
 mod day6 ;mod day7 ;mod day8 ;mod day9;mod day10;
-mod day11;mod day12;mod day13;
+mod day11;mod day12;mod day13;mod day14;
 
 fn main() {
     println!("Day:");
@@ -49,6 +49,7 @@ fn main() {
         11 => day11::solve(reader),
         12 => day12::solve(reader),
         13 => day13::solve(reader),
+        14 => day14::solve(reader),
         _ => panic!("Not implemented"),
     }
 }
