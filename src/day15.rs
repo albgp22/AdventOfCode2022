@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
@@ -18,6 +19,17 @@ fn distance(a: (i32, i32), b: (i32, i32)) -> i32 {
     (a.0 - b.0).abs() + (a.1 - b.1).abs()
 }
 
+fn circle(s: &(i32, i32), distance: i32) -> HashSet<(i32, i32)> {
+    let mut r = HashSet::new();
+    for i in 0..(distance + 1) {
+        r.insert((s.0 + i, s.1 + distance - i));
+        r.insert((s.0 - i, s.1 + distance - i));
+        r.insert((s.0 + i, s.1 - distance + i));
+        r.insert((s.0 - i, s.1 - distance + i));
+    }
+    r
+}
+
 pub fn solve(reader: BufReader<File>) {
     let lines: Vec<String> = reader
         .lines()
@@ -33,10 +45,10 @@ pub fn solve(reader: BufReader<File>) {
     }
 
     let mut sol1: HashSet<i32> = HashSet::new();
-    let mut distances: HashMap<((i32, i32),(i32,i32)), i32> = HashMap::new();
+    let mut distances: HashMap<((i32, i32), (i32, i32)), i32> = HashMap::new();
 
     sensor_beacon.iter().for_each(|(&a, &b)| {
-        distances.insert((a,b), distance(a, b));
+        distances.insert((a, b), distance(a, b));
     });
 
     const Y: i32 = 2000000;
@@ -60,22 +72,48 @@ pub fn solve(reader: BufReader<File>) {
 
     println!("{}", sol1.len());
 
+    let mut sensors_distances: HashMap<(i32, i32), i32> = HashMap::new();
+
+    for ((a, b), d) in distances.iter() {
+        sensors_distances.insert(*a, *d);
+    }
+
+    let sensors_by_distance = sensors_distances.keys().sorted_by(|a, b| {
+        sensors_distances
+            .get(&a)
+            .unwrap()
+            .cmp(sensors_distances.get(&b).unwrap())
+    });
+
     const LIMIT: i32 = 4000000;
-    let mut x = -1;
-    for y in 0..=LIMIT {
-        'outer: while x <= LIMIT {
-            x+=1;
-            for (&sensor, &beacon) in sensor_beacon.iter() {
-                let d = distance(sensor, (x, y));
-                let max_d = *distances.get(&(sensor, beacon)).unwrap();
-                if d <= max_d {
-                    let leap = max_d - (y - sensor.1).abs() + sensor.0 - x;
-                    x += leap;
-                    continue 'outer;
+    for sensor in sensors_by_distance {
+        let d = *sensors_distances.get(&sensor).unwrap();
+        println!("Looking at a distance {} from {:?}", d, &sensor);
+        for max_distance in vec![d, d + 1] {
+            let c = circle(&sensor, max_distance);
+            //println!("{:?}", &c);
+            for point in c {
+                if point.0 <= 0 || point.1 <= 0 || point.0 >= LIMIT || point.1 >= LIMIT {
+                    continue;
+                }
+                if distances.iter().all(|((s, _b), d)| {
+                    /*println!(
+                        "Distance: {}, sensor_distance: {}, point: {:?}, sensor: {:?}",
+                        distance(*s, point),
+                        *d,
+                        &point,
+                        &s,
+                    );*/
+                    distance(*s, point) > *d
+                }) {
+                    println!(
+                        "Solution 2: {:?}: {}",
+                        (point.0, point.1),
+                        point.0 * 4000000 + point.1
+                    );
+                    return;
                 }
             }
-            println!("Sol2: {}", x * LIMIT + y);
-            return;
         }
     }
 }
