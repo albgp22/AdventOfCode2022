@@ -109,7 +109,7 @@ pub fn solve(reader: BufReader<File>) {
                     println!(
                         "Solution 2: {:?}: {}",
                         (point.0, point.1),
-                        point.0 * 4000000 + point.1
+                        (point.0 as i64)* 4000000 as i64 + point.1 as i64
                     );
                     return;
                 }
