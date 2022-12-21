@@ -1,58 +1,7 @@
-use genetic_algorithm::strategy::evolve::{self, prelude::*};
-use genetic_algorithm::compete::{CompeteTournament, CompeteDispatch};
 use regex::Regex;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
-
-#[derive(PartialEq, Clone, Debug)]
-enum ActionType {
-    Move(usize),
-    Activate,
-    None,
-}
-
-#[derive(Clone, Debug)]
-struct GetFlow{
-    adj: Vec<Vec<bool>>,
-    flows: Vec<u16>,
-    impossible_penalty: u16,
-    initial_node: usize,
-}
-
-impl Fitness for GetFlow {
-    type Genotype = DiscreteGenotype<ActionType>;
-
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
-    ) -> Option<FitnessValue> {
-        let mut r: i32 = 0;
-        let mut activated = vec![];
-        let mut curr_node = self.initial_node;
-        for (i, action) in chromosome.genes.iter().enumerate(){
-            match action {
-                ActionType::Activate => {
-                    if !activated.contains(&curr_node){
-                        activated.push(curr_node);
-                        r += (30-i as i32)*(self.flows[curr_node] as i32);
-                    }else{
-                        r = r - self.impossible_penalty as i32;
-                    }
-                },
-                ActionType::Move(j) => {
-                    //println!("{},{}", curr_node, *j);
-                    if !self.adj[curr_node][*j] {
-                        r = r - self.impossible_penalty as i32;
-                    }
-                    curr_node = *j;
-                }
-                ActionType::None => {},
-            }
-        }
-        Some(r as FitnessValue)
-    }
-}
 
 fn get_flow(l: &str) -> i32 {
     let re =
@@ -66,6 +15,45 @@ fn get_flow(l: &str) -> i32 {
         .as_str()
         .parse()
         .unwrap()
+}
+
+fn distance(adjacency: &HashMap<usize, Vec<usize>>, i: usize, j: usize) -> i32 {
+    if adjacency.get(&i).unwrap().contains(&j) {
+        1
+    } else {
+        i32::MAX / 2
+    }
+}
+
+fn visit(
+    v: usize,
+    budget: i32,
+    state: u32,
+    flow: i32,
+    r: &mut HashMap<u32, i32>,
+    n: usize,
+    distances: &Vec<Vec<i32>>,
+    flows: &HashMap<usize, i32>,
+) {
+    let prev_state_value = *r.get(&state).or(Some(&0)).unwrap();
+    r.insert(state, prev_state_value.max(flow));
+    for u in 0..n {
+        if *flows.get(&u).unwrap() == 0{ continue;}
+        let new_budget = budget - distances[v][u] - 1;
+        if ((1 << u & state) != 0) || (new_budget <= 0) {
+            continue;
+        }
+        visit(
+            u,
+            new_budget,
+            state | (1 << u),
+            flow + new_budget * flows.get(&u).unwrap(),
+            r,
+            n,
+            distances,
+            flows,
+        );
+    }
 }
 
 pub fn solve(reader: BufReader<File>) {
@@ -84,7 +72,7 @@ pub fn solve(reader: BufReader<File>) {
 
     let mut adj_string: HashMap<&str, Vec<&str>> = HashMap::new();
     let mut indices: HashMap<&str, usize> = HashMap::new();
-    let mut flows: Vec<u16> = vec![];
+    let mut flows: Vec<i32> = vec![];
 
     for (i, line) in lines.iter().enumerate() {
         let cap = re.captures(line).unwrap();
@@ -96,60 +84,101 @@ pub fn solve(reader: BufReader<File>) {
             .unwrap()
             .unwrap()
             .as_str()
-            .parse::<u16>()
+            .parse::<i32>()
             .unwrap();
+
         let dests: Vec<&str> = cap_iter
             .filter(|x| x.is_some())
             .map(|x| x.unwrap().as_str())
             .collect();
-
-        println!("Origin: {}", origin);
-        println!("Rate: {}", rate);
-        println!("Dests: {:?}", dests);
 
         adj_string.insert(origin, dests);
         flows.push(rate);
         indices.insert(origin, i);
     }
 
-    let n = flows.len();
-    let mut adj = vec![vec![false; n]; n];
-    for (origin, dests) in adj_string.iter() {
-        for d in dests {
-            adj[*indices.get(origin).unwrap()][*indices.get(d).unwrap()] = true;
+    let adjacency = {
+        let mut r: HashMap<usize, Vec<usize>> = HashMap::new();
+        adj_string.iter().for_each(|(origin, dests)| {
+            r.insert(
+                *indices.get(origin).unwrap(),
+                dests.iter().map(|i| *indices.get(i).unwrap()).collect(),
+            );
+        });
+        r
+    };
+
+    let flows = {
+        let mut r: HashMap<usize, i32> = HashMap::new();
+        flows.iter().enumerate().for_each(|(origin, flow)| {
+            r.insert(origin, *flow);
+        });
+        r
+    };
+
+    let n = indices.iter().len();
+    let mut distances = vec![vec![0; n]; n];
+
+    for i in 0..n {
+        for j in 0..n {
+            if i == j {
+                distances[i][j] = 0;
+            } else {
+                distances[i][j] = distance(&adjacency, i, j);
+            }
         }
     }
-    drop(adj_string);
 
-    // the search space
-    let genotype = DiscreteGenotype::builder()
-        .with_genes_size(30)
-        .with_allele_list({
-            let mut x: Vec<ActionType> = (0..n).map(|i| ActionType::Move(i)).collect();
-            x.push(ActionType::Activate);
-            x.push(ActionType::None);
-            x
-        })
-        .build()
-        .unwrap();
+    for k in 0..n {
+        for i in 0..n {
+            for j in 0..n {
+                distances[i][j] = distances[i][j].min(distances[i][k] + distances[k][j]);
+            }
+        }
+    }
 
-    println!("{}", genotype);
+    // Part 1
+    let mut result = HashMap::new();
+    visit(
+        *indices.get("AA").unwrap(),
+        30,
+        0,
+        0,
+        &mut result,
+        n,
+        &distances,
+        &flows,
+    );
+    println!("{:?}", result.iter().map(|(_k, v)| v).max().unwrap());
 
-    let mut rng = rand::thread_rng();
+    //Part 2
+    let mut result = HashMap::new();
+    visit(
+        *indices.get("AA").unwrap(),
+        26,
+        0,
+        0,
+        &mut result,
+        n,
+        &distances,
+        &flows,
+    );
 
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_population_size(10000)
-        .with_fitness(GetFlow{adj: adj, flows: flows, impossible_penalty: 1000, initial_node: *indices.get("AA").unwrap()})
-        .with_mutate(MutateOnce(0.5))
-        .with_crossover(CrossoverUniform(true))
-        .with_compete(CompeteElite)
-        .with_max_stale_generations(100000)
-        .with_fitness_ordering(FitnessOrdering::Maximize)
-        .call(&mut rng)
-        .unwrap();
-
-    
-    println!("{}", evolve);
-    println!("{:?}",indices);
+    println!(
+        "{}",
+        &result
+            .iter()
+            .map(|(k, v)| {
+                result
+                    .iter()
+                    .filter(|(k2, _v2)| (*k & **k2) != 0)
+                    .map(|(_k2, v2)| *v2)
+                    .max()
+                    .or(Some(0))
+                    .unwrap()
+                    + v
+            })
+            .max()
+            .unwrap()
+    )
 }
