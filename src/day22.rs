@@ -510,4 +510,6 @@ pub fn solve(reader: BufReader<File>) {
                 Direction::Up => 3,
             }
     );
+
+    //Test
 }
