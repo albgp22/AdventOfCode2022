@@ -31,11 +31,6 @@ fn neighbors(
         .filter(|(i, j)| (*i < height && *j < width) || ((*i, *j) == (height, width - 1)))
         .map(|(i, j)| (*i, *j))
         .collect::<Vec<_>>();
-    /*println!(
-        "{:?}",
-        p[usize::try_from((epoch + 1).rem_euclid(period)).unwrap()].len()
-    );
-    println!("{:?} -> {:?}", (i, j), r);*/
     r
 }
 
@@ -57,25 +52,6 @@ fn distance(
                 m2.insert(n);
             }
         }
-        /*for i in 0..height {
-            for j in 0..width {
-                print!(
-                    "{}",
-                    if !p[usize::try_from((c).rem_euclid(period)).unwrap()]
-                        .iter()
-                        .any(|(ii, jj, _dd)| *ii == i && *jj == j)
-                    {
-                        "."
-                    } else {
-                        "#"
-                    }
-                )
-            }
-            println!("");
-        }
-
-        println!("{:?}", p[usize::try_from((c).rem_euclid(period)).unwrap()]);
-        println!("\n\n");*/
         c += 1;
         m = m2;
         if m.contains(&dest) {

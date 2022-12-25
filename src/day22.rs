@@ -2,6 +2,7 @@ use core::panic;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
+use colored::Colorize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CellType {
